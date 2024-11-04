@@ -1,0 +1,207 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+
+namespace MySQLVisual
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+
+        private void btnConexion_Click(object sender, EventArgs e)
+
+        {
+            DataTable DatosResultadoEjecucion = new DataTable();
+            string servidor = txtServidor.Text;
+            string puerto = txtPuerto.Text;
+            string usuario = txtNombreUsuario.Text;
+            string clave = txtClaveUsuario.Text;
+
+            string cadenaConexion = "server=" + servidor + "; port=" + puerto + "; user id=" + usuario + "; password=" + clave + "; database=universidad;";
+
+            MySqlConnection conexionBaseDatos = new MySqlConnection(cadenaConexion);
+
+            try
+            {
+                conexionBaseDatos.Open();
+     
+                MySqlCommand comando = new MySqlCommand("select * from personass", conexionBaseDatos);
+
+                MySqlDataAdapter adaptador = new MySqlDataAdapter();
+                adaptador.SelectCommand = comando;
+                adaptador.Fill(DatosResultadoEjecucion);
+
+                MessageBox.Show("Conexion Correcta");
+    
+                conexionBaseDatos.Close();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }    
+        }
+
+
+        private void btnGrabar_Click(object sender, EventArgs e)
+        {
+            int resultado = 0;
+            string servidor = txtServidor.Text;
+            string puerto = txtPuerto.Text;
+            string usuario = txtNombreUsuario.Text;
+            string clave = txtClaveUsuario.Text;
+
+            string cadenaConexion = "server=" + servidor + "; port=" + puerto + "; user id=" + usuario + "; password=" + clave + "; database=universidad;";
+
+            MySqlConnection conexionBaseDatos = new MySqlConnection(cadenaConexion);
+
+            try
+            {
+                //Abrir la conexion con la base de datos
+                conexionBaseDatos.Open();
+
+                // Si quiero ejecutar un comando sCmd, debo abrir primero la conexion
+                MySqlCommand comando = new MySqlCommand("insert into universidad.persona (idpersona, nombre, edad) values ('" + txtCedula.Text + "','" + txtNombre.Text + "','" + txtEdad.Text + "')", conexionBaseDatos);
+                //Despues debo ejecutar el comando con la siguiente instruccion
+                resultado = comando.ExecuteNonQuery();
+
+                if (resultado > 0)
+                    lblResultado.Text = "Información Guardada";
+                else
+                    lblResultado.Text = "Ya existe perosna con esa cedula";
+                conexionBaseDatos.Close();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }           
+        }
+
+        private void btnConsultar_Click(object sender, EventArgs e)
+        {
+            DataTable DatosResultadoEjecucion = new DataTable();
+            string servidor = txtServidor.Text;
+            string puerto = txtPuerto.Text;
+            string usuario = txtNombreUsuario.Text;
+            string clave = txtClaveUsuario.Text;
+
+            string cadenaConexion = "server=" + servidor + "; port=" + puerto + "; user id=" + usuario + "; password=" + clave + "; database=universidad;";
+
+            MySqlConnection conexionBaseDatos = new MySqlConnection(cadenaConexion);
+
+            try
+            {
+                conexionBaseDatos.Open();
+
+                string consulta = "select * from universidad.persona";
+
+                if (txtCedulaBuscar.Text != string.Empty)
+                {
+                    consulta = consulta + " where cedula=" + txtCedulaBuscar.Text;
+                }
+                else if (txtNombreBuscar.Text != string.Empty)
+                {
+                    consulta = consulta + " where nombre='" + txtNombreBuscar.Text+"'";
+                }
+                else if (txtEdadBuscar.Text != string.Empty)
+                {
+                    consulta = consulta + " where edad=" + txtEdadBuscar.Text;
+                }
+
+                MySqlCommand comando = new MySqlCommand(consulta,conexionBaseDatos);
+
+                MySqlDataAdapter adaptador= new MySqlDataAdapter();
+                adaptador.SelectCommand = comando;
+                adaptador.Fill(DatosResultadoEjecucion);
+
+                if (DatosResultadoEjecucion.Rows.Count > 0)
+                    grvPrueba.DataSource = DatosResultadoEjecucion;
+                else
+                    grvPrueba.DataSource = null;
+                conexionBaseDatos.Close();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }           
+        }
+
+        private void btnActualizar_Click(object sender, EventArgs e)
+        {
+            int resultado = 0;
+            string servidor = txtServidor.Text;
+            string puerto = txtPuerto.Text;
+            string usuario = txtNombreUsuario.Text;
+            string clave = txtClaveUsuario.Text;
+
+            string cadenaConexion = "server=" + servidor + "; port=" + puerto + "; user id=" + usuario + "; password=" + clave + "; database=universidad;";
+
+            MySqlConnection conexionBaseDatos = new MySqlConnection(cadenaConexion);
+
+            try
+            {
+                //Abrir la conexion con la base de datos
+                conexionBaseDatos.Open();
+
+                // Si quiero ejecutar un comando sCmd, debo abrir primero la conexion
+                MySqlCommand comando = new MySqlCommand("update personas set nombre='" + txtNombre.Text + "', edad='" + txtEdad.Text+"' where cedula='" + txtCedula.Text + "'", conexionBaseDatos);
+                //Despues debo ejecutar el comando con la siguiente instruccion
+                resultado = comando.ExecuteNonQuery();
+
+                if (resultado > 0)
+                    lblResultado.Text = "Información actualizada";
+                else
+                    lblResultado.Text = "No se actualizo la informacion";
+                conexionBaseDatos.Close();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.ToString());
+            } 
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            int resultado = 0;
+            string servidor = txtServidor.Text;
+            string puerto = txtPuerto.Text;
+            string usuario = txtNombreUsuario.Text;
+            string clave = txtClaveUsuario.Text;
+
+            string cadenaConexion = "server=" + servidor + "; port=" + puerto + "; user id=" + usuario + "; password=" + clave + "; database=universidad;";
+
+            MySqlConnection conexionBaseDatos = new MySqlConnection(cadenaConexion);
+
+            try
+            {
+                //Abrir la conexion con la base de datos
+                conexionBaseDatos.Open();
+
+                // Si quiero ejecutar un comando sCmd, debo abrir primero la conexion
+                MySqlCommand comando = new MySqlCommand("delete from personas where cedula='" + txtIDEliminar.Text + "'", conexionBaseDatos);
+                //Despues debo ejecutar el comando con la siguiente instruccion
+                resultado = comando.ExecuteNonQuery();
+
+                if (resultado > 0)
+                    lblResultado.Text = "Información eliminada";
+                else
+                    lblResultado.Text = "No se elimino la informacion";
+                conexionBaseDatos.Close();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.ToString());
+            } 
+        }
+    }
+}
